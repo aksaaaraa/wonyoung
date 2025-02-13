@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Love Wonyoung</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .scene {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .main-heart {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #ff5e8f, #ff1493);
+            box-shadow: 0 0 50px rgba(255, 20, 147, 0.7);
+            animation: pulseHeart 2s ease-in-out infinite;
+        }
+
+        .main-heart::before,
+        .main-heart::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: inherit;
+            border-radius: 50%;
+        }
+
+        .main-heart::before {
+            left: -50px;
+        }
+
+        .main-heart::after {
+            top: -50px;
+        }
+
+        .floating-heart {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp var(--duration) ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkleEffect 1.5s ease-in-out infinite;
+        }
+
+        .love-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: white;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            animation: glowText 2s ease-in-out infinite;
+        }
+
+        .glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            filter: blur(20px);
+            opacity: 0.6;
+            background: inherit;
+            z-index: -1;
+        }
+
+        @keyframes pulseHeart {
+            0%, 100% {
+                transform: translate(-50%, -50%) rotate(45deg) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) rotate(45deg) scale(1.2);
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translate(var(--startX), 100vh) scale(0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--endX), -100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sparkleEffect {
+            0%, 100% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes glowText {
+            0%, 100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        .trail {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 182, 193, 0.8);
+            pointer-events: none;
+        }
+
+        .small-heart {
+            position: absolute;
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        .small-heart::before,
+        .small-heart::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            border-radius: 50%;
+        }
+
+        .small-heart::before {
+            left: -50%;
+        }
+
+        .small-heart::after {
+            top: -50%;
+        }
+
+        .background-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .background-heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 105, 180, 0.3);
+            transform: rotate(45deg);
+            animation: floatBackground 10s linear infinite;
+        }
+
+        .background-heart::before,
+        .background-heart::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: inherit;
+            border-radius: 50%;
+        }
+
+        .background-heart::before {
+            left: -10px;
+        }
+
+        .background-heart::after {
+            top: -10px;
+        }
+
+        @keyframes floatBackground {
+            0% {
+                transform: translateY(100vh) rotate(45deg);
+            }
+            100% {
+                transform: translateY(-100px) rotate(45deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Audio element to play the song automatically -->
+    <audio autoplay loop>
+        <source src="old.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="scene">
+        <div class="main-heart">
+            <div class="glow"></div>
+        </div>
+        <div class="love-text"></div>
+        <div class="background-hearts">
+            <!-- Background hearts will be generated here -->
+        </div>
+    </div>
+
+    <script>
+        const scene = document.querySelector('.scene');
+        const backgroundHeartsContainer = document.querySelector('.background-hearts');
+
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            
+            const size = Math.random() * 30 + 15;
+            const startX = Math.random() * window.innerWidth;
+            const endX = startX + (Math.random() * 200 - 100);
+            const duration = Math.random() * 4 + 4;
+            
+            heart.style.setProperty('--startX', `${startX}px`);
+            heart.style.setProperty('--endX', `${endX}px`);
+            heart.style.setProperty('--duration', `${duration}s`);
+            
+            const innerHeart = document.createElement('div');
+            innerHeart.className = 'small-heart';
+            innerHeart.style.width = `${size}px`;
+            innerHeart.style.height = `${size}px`;
+            innerHeart.style.background = `hsl(${Math.random() * 30 + 330}, 100%, 70%)`;
+            
+            heart.appendChild(innerHeart);
+            scene.appendChild(heart);
+            
+            heart.addEventListener('animationend', () => heart.remove());
+        }
+
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = `${Math.random() * 100}%`;
+            sparkle.style.top = `${Math.random() * 100}%`;
+            scene.appendChild(sparkle);
+            
+            setTimeout(() => sparkle.remove(), 1500);
+        }
+
+        function createBackgroundHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'background-heart';
+            heart.style.left = `${Math.random() * 100}%`;
+            heart.style.animationDuration = `${Math.random() * 10 + 10}s`;
+            backgroundHeartsContainer.appendChild(heart);
+            
+            heart.addEventListener('animationend', () => heart.remove());
+        }
+
+        let lastX = 0;
+        let lastY = 0;
+
+        function createTrail(e) {
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const trail = document.createElement('div');
+            trail.className = 'trail';
+            trail.style.left = `${x}px`;
+            trail.style.top = `${y}px`;
+            scene.appendChild(trail);
+            
+            setTimeout(() => trail.remove(), 1000);
+
+            lastX = x;
+            lastY = y;
+        }
+
+        scene.addEventListener('mousemove', createTrail);
+        scene.addEventListener('touchmove', createTrail);
+
+        setInterval(createFloatingHeart, 300);
+        setInterval(createSparkle, 200);
+        setInterval(createBackgroundHeart, 500);
+    </script>
+</body>
+</html>
